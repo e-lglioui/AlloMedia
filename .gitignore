@@ -1,22 +1,5 @@
-# Node modules
+
 node_modules/
-
-# Logs
-logs
-*.log
-npm-debug.log*
-
-# Environment variables
 .env
 
-# Build files
-dist/
-build/
 
-# Temporary files
-*.tmp
-*.temp
-
-# IDE files
-.vscode/
-.idea/
