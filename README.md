@@ -75,3 +75,18 @@ alloMedia is a Single Page Application (SPA) built using the MERN stack with cli
 To run unit tests for authentication and other critical features:
 
                         npm test
+
+
+  ## Project Structure
+/alloMedia
+│
+├── /controllers        # Business logic for handling routes
+├── /models             # Mongoose schemas for Users, Orders, Deliveries
+├── /routes             # Express routes for API endpoints
+├── /middleware         # JWT verification and role-based access control
+├── /utils              # Utility functions (sending emails, SMS)
+├── /tests              # Unit tests
+├── .env                # Environment variables
+├── server.js           # Main server file
+└── package.json        # Project dependencies and scripts
+
