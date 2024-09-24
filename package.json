@@ -1,0 +1,20 @@
+{
+  "name": "allomedia",
+  "version": "1.0.0",
+  "description": "alloMedia is a Single Page Application (SPA) built using the MERN stack with client-side rendering (CSR). The platform allows customers to place orders for home delivery, manage their deliveries, and pay after the service is rendered. The application features role-based access for admins, customers, and delivery personnel, ensuring a secure and smooth user experience with JWT and two-factor authentication (2FA).",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js",
+   "dev": "nodemon app.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.21.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.7"
+  }
+}
