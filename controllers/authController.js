@@ -4,10 +4,21 @@ const jwt=require('jsonwebtoken');
 const bcryptjs=require('bcryptjs');
 const nodemailer = require('nodemailer');
 
+const hashPassword = async (password) => {
+   const salt = await bcryptjs.genSalt(10); // Générer un sel
+   return await bcryptjs.hash(password, salt); // Hacher le mot de passe
+};
 
 exports.register= async(req,res)=>{
 
-    const { name, email, password,phoneNumber, address} = req.body;
+   let clientRole = await Role.findOne({ name: 'client' });
+    
+   // If not, create it
+   if (!clientRole) {
+     clientRole = await Role.create({ name: 'client' });
+   }
+   // console.log(req.body); 
+    const { name, email, password,phoneNumber, address } = req.body;
     try{
      const nameExiste = await User.findOne({name});
      if(nameExiste){
@@ -24,7 +35,8 @@ exports.register= async(req,res)=>{
         password: hashedPassword,
         email: email,
         phoneNumber:phoneNumber,
-        address: address
+        address: address,
+        role: clientRole
 
     });
 
@@ -33,7 +45,8 @@ exports.register= async(req,res)=>{
     const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
      return res.status(201).json({ token });
-    }catch{
+    }catch(err){
+      console.error(err); 
          return res.status(500).send({ error: err.message || 'User Registration Failed...!' });
     }
 };
