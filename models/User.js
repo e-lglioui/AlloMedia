@@ -2,7 +2,7 @@
 
 const mongoose = require("mongoose");
 const { isEmail } = require('validator');
-const bcrypt = require('bcrypt');
+const bcryptjs=require('bcryptjs');
 const Role = require('./Role');
 
 const userSchema = new mongoose.Schema({
@@ -37,5 +37,13 @@ const userSchema = new mongoose.Schema({
     required: true
   }
 });
+
+// fire a function before doc saved to db
+userSchema.pre('save', async function(next) {
+  const salt = await bcryptjs.genSalt();
+  this.password = await bcryptjs.hash(this.password, salt);
+  next();
+});
+
 
 module.exports = mongoose.model('User', userSchema);

@@ -1,13 +1,7 @@
 const User=require('../models/User');
 const Role=require('../models/Role');
 const jwt=require('jsonwebtoken');
-const bcryptjs=require('bcryptjs');
 const nodemailer = require('nodemailer');
-
-const hashPassword = async (password) => {
-   const salt = await bcryptjs.genSalt(10); // Générer un sel
-   return await bcryptjs.hash(password, salt); // Hacher le mot de passe
-};
 
 exports.register= async(req,res)=>{
 
@@ -28,11 +22,10 @@ exports.register= async(req,res)=>{
      if(emailExiste){
         return res.status(400).json({ message: 'This email exist' });
      }
-     const hashedPassword = await hashPassword(password);
-
+     
      const newUser = new User({
         name: name,
-        password: hashedPassword,
+        password: password,
         email: email,
         phoneNumber:phoneNumber,
         address: address,
