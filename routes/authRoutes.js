@@ -6,7 +6,7 @@ const authController = require('../controllers/authController');
 // POST Methods
 router.post('/api/auth/register', authController.register);
 
-
+router.post('/api/auth/verify-otp', authController.register);
 
 
 
