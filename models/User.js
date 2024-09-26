@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const { isEmail } = require('validator');
 const bcryptjs=require('bcryptjs');
 const Role = require('./Role');
+const { boolean } = require("joi");
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -30,7 +31,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     required:  [true ,'please enter adress']
   },
- 
+  isVerified: {
+    type: Boolean,
+    required: false
+  },
   role: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Role',
@@ -39,9 +43,17 @@ const userSchema = new mongoose.Schema({
 });
 
 // fire a function before doc saved to db
-userSchema.pre('save', async function(next) {
-  const salt = await bcryptjs.genSalt();
-  this.password = await bcryptjs.hash(this.password, salt);
+userSchema.pre('save', async function (next) {
+  const user = this;
+  if (user.isModified('password')) {
+    try {
+      const salt = await bcryptjs.genSalt(10);
+      user.password = await bcryptjs.hash(user.password, salt);
+    } catch (err) {
+      return next(err); 
+    }
+  }
+
   next();
 });
 

@@ -39,7 +39,8 @@ exports.register= async(req,res)=>{
         email: email,
         phoneNumber:phoneNumber,
         address: address,
-        role: clientRole
+        role: clientRole,
+        isVerified:false
 
     });
 
@@ -47,8 +48,9 @@ exports.register= async(req,res)=>{
     // console.log(process.env.EMAIL_USER);
     const emailToken = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-    const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${emailToken}`;
-//  console.log(verificationUrl);
+    const verificationUrl = `${process.env.API_URL}?token=${emailToken}`;
+
+ console.log(verificationUrl);
     // Configure le transporteur d'e-mail (avec nodemailer)
     const transporter = nodemailer.createTransport({
       host: 'smtp.gmail.com',
@@ -85,4 +87,38 @@ exports.register= async(req,res)=>{
       const errors = handleErrors(err);
       res.status(400).json({ errors });
     }
+};
+
+exports.verifyEmail = async (req, res) => {
+    
+  const { token } = req.query; // Récupère le token depuis la requête
+
+  if (!token) {
+    return res.status(400).json({ message: 'No token provided' });
+  }
+
+  try {
+    // Vérifie le token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.userId); 
+  
+    if (!user) {
+      return res.status(400).json({ message: 'User not found' });
+    }
+
+    
+    if (user.isVerified) {
+      return res.status(400).json({ message: 'Email already verified' });
+    }
+
+    user.isVerified = true;
+    // console.log(user);
+    await user.save();
+//  console.log(user);
+    // Répond avec un message de succès
+    return res.status(200).json({ message: 'Email verified successfully' });
+  } catch (err) {
+    console.error("Error while saving the user:", err);
+    return res.status(400).json({ message: 'Invalid or expired token' });
+  }
 };
