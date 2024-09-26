@@ -6,6 +6,8 @@ import nodemailer from 'nodemailer';
 import handleErrors from '../validation/handleErrors.js';
 import { registerValidation } from '../validation/userValidator.js';
 import dotenv from 'dotenv';
+import transporter from '../utils/transporter.js'; 
+
 dotenv.config();
 export const register = async(req,res)=>{
    
@@ -14,8 +16,7 @@ export const register = async(req,res)=>{
    if (error) return res.status(400).json({ message: error.details[0].message });
 
    let clientRole = await Role.findOne({ name: 'client' });
-    
-   // If not, create it
+
    if (!clientRole) {
      clientRole = await Role.create({ name: 'client' });
    }
@@ -24,10 +25,10 @@ export const register = async(req,res)=>{
 
     const { name, email, password,phoneNumber, address } = req.body;
     try{
-     const nameExiste = await User.findOne({name});
-     if(nameExiste){
-        return res.status(400).json({ message: 'This name ealrdy exist' });
-     }
+      const existingUser = await User.findOne({ name: req.body.name });
+  if (existingUser) {
+    return res.status(400).json({ message: 'This name already exists' });
+  }
      const emailExiste = await User.findOne({email});
      if(emailExiste){
         return res.status(400).json({ message: 'This email exist' });
@@ -52,15 +53,15 @@ export const register = async(req,res)=>{
 
  console.log(verificationUrl);
     // Configure le transporteur d'e-mail (avec nodemailer)
-    const transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-      port: 587,
-      secure: false, 
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      }
-    });
+    // const transporter = nodemailer.createTransport({
+    //   host: 'smtp.gmail.com',
+    //   port: 587,
+    //   secure: false, 
+    //   auth: {
+    //     user: process.env.EMAIL_USER,
+    //     pass: process.env.EMAIL_PASS,
+    //   }
+    // });
 
     // Crée le contenu de l'e-mail
     const mailOptions = {
@@ -75,12 +76,13 @@ export const register = async(req,res)=>{
     };
 
     // Envoie l'e-mail
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        return console.log(error);
-      }
-      console.log('Email envoyé : ' + info.response);
-    });
+    // transporter.sendMail(mailOptions, (error, info) => {
+    //   if (error) {
+    //     return console.log(error);
+    //   }
+    //   console.log('Email envoyé : ' + info.response);
+    // });
+    await transporter.sendMail(mailOptions);
 
     res.status(201).json({ message: 'User registered. Please check your email for verification.' });
     }catch(err){
