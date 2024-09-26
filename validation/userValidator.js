@@ -1,7 +1,7 @@
-const Joi = require('joi');
-const Role = require('../models/Role');
+import Joi from 'joi'; 
+import Role from '../models/Role.js';
 
-const registerValidation = (data) => {
+export const registerValidation = (data) => { 
   const schema = Joi.object({
     name: Joi.string().min(3).max(30).required(),
     email: Joi.string().min(6).email().required(),
@@ -13,5 +13,3 @@ const registerValidation = (data) => {
 
   return schema.validate(data);
 };
-
-module.exports = { registerValidation };

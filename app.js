@@ -1,12 +1,12 @@
-const express = require('express');
+import express from 'express';
+import dotenv from 'dotenv'; // Importer dotenv
+import db from './config/db.js'; // Assurez-vous que le chemin est correct
+import authRouter from './routes/authRoutes.js'; 
+dotenv.config();
 const app = express();
 const port = 3000;
-require('dotenv').config();
-const db = require('./config/db');
-
 db();
 
-const authRouter = require('./routes/authRoutes');
 
 // Middleware pour parser le JSON
 app.use(express.json());

@@ -1,13 +1,13 @@
-const express = require('express');
-const User=require('../models/User');
-const Role=require('../models/Role');
-const jwt=require('jsonwebtoken');
-const nodemailer = require('nodemailer');
-const handleErrors= require('../validation/handleErrors');
-const { registerValidation } = require('../validation/userValidator');
-require('dotenv').config();
-
-exports.register= async(req,res)=>{
+import express from 'express';
+import User from '../models/User.js';
+import Role from '../models/Role.js';
+import jwt from 'jsonwebtoken';
+import nodemailer from 'nodemailer';
+import handleErrors from '../validation/handleErrors.js';
+import { registerValidation } from '../validation/userValidator.js';
+import dotenv from 'dotenv';
+dotenv.config();
+export const register = async(req,res)=>{
    
 //validation de requiste
    const { error } = registerValidation(req.body);
@@ -55,7 +55,7 @@ exports.register= async(req,res)=>{
     const transporter = nodemailer.createTransport({
       host: 'smtp.gmail.com',
       port: 587,
-      secure: false, // use SSL
+      secure: false, 
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
@@ -89,7 +89,7 @@ exports.register= async(req,res)=>{
     }
 };
 
-exports.verifyEmail = async (req, res) => {
+export const verifyEmail = async (req, res) => {
     
   const { token } = req.query; // Récupère le token depuis la requête
 

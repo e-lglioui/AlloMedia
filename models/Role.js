@@ -1,6 +1,4 @@
-'use strict';
-
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const roleSchema = new mongoose.Schema({
   name: {
@@ -8,7 +6,7 @@ const roleSchema = new mongoose.Schema({
     required: true,
     unique: true
   }
-  
 });
 
-module.exports = mongoose.model('Role', roleSchema);
+const Role = mongoose.model('Role', roleSchema);
+export default Role;

@@ -1,35 +1,37 @@
 'use strict';
 
-const mongoose = require("mongoose");
-const { isEmail } = require('validator');
-const bcryptjs=require('bcryptjs');
-const Role = require('./Role');
-const { boolean } = require("joi");
+import mongoose from "mongoose";
+import validator from 'validator';
+const { isEmail } = validator;
+
+import bcryptjs from 'bcryptjs';
+import Role from './Role.js'; 
+// import { boolean } from "joi"; 
 
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: [true ,'please enter name']
+    required: [true, 'please enter name']
   },
   email: {
     type: String,
-    required:  [true ,'please enter email'],
+    required: [true, 'please enter email'],
     unique: true,
     validate: [isEmail, 'Please enter a valid email']
   },
   password: {
     type: String,
-    required:  [true ,'please enter password'],
+    required: [true, 'please enter password'],
     select: false,
-    minLength:[6 ,'enter mor than 6 caracters']
+    minLength: [6, 'enter more than 6 characters']
   },
   phoneNumber: {
     type: String,
-    required:  [true ,'please enter phoneNumber']
+    required: [true, 'please enter phoneNumber']
   },
   address: {
     type: String,
-    required:  [true ,'please enter adress']
+    required: [true, 'please enter address']
   },
   isVerified: {
     type: Boolean,
@@ -42,7 +44,7 @@ const userSchema = new mongoose.Schema({
   }
 });
 
-// fire a function before doc saved to db
+// Fire a function before doc saved to db
 userSchema.pre('save', async function (next) {
   const user = this;
   if (user.isModified('password')) {
@@ -57,5 +59,4 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
-
-module.exports = mongoose.model('User', userSchema);
+export default mongoose.model('User', userSchema);

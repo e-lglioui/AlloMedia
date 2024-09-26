@@ -30,4 +30,4 @@ const handleErrors = (err) => {
     return errors;
 };
 
-module.exports = handleErrors;  // Correction ici
+export default handleErrors; // Utiliser l'exportation par défaut
