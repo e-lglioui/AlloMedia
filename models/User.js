@@ -7,6 +7,9 @@ const { isEmail } = validator;
 import bcryptjs from 'bcryptjs';
 import Role from './Role.js'; 
 // import { boolean } from "joi"; 
+import dotenv from 'dotenv';
+import jwt from 'jsonwebtoken';
+dotenv.config();
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -41,8 +44,17 @@ const userSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Role',
     required: true
-  }
-});
+  },
+  two_fa_status: { type: String, default: 'off' },
+  OTP_code: { type: String, default: null },
+  password: {
+      type: String,
+      required: [true, "Please add a password"],
+      minlength: 6, select: false
+  },
+},
+  { timestamps: true }
+);
 
 // Fire a function before doc saved to db
 userSchema.pre('save', async function (next) {
@@ -58,5 +70,13 @@ userSchema.pre('save', async function (next) {
 
   next();
 });
+
+userSchema.methods.getSignedToken = function () {
+  return jwt.sign({ id: this._id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRESIN })
+}
+
+userSchema.methods.matchPasswords = async function (password) {
+  return await bcryptjs.compare(password, this.password);
+}
 
 export default mongoose.model('User', userSchema);

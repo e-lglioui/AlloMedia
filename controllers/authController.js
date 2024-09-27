@@ -1,12 +1,18 @@
 import express from 'express';
 import User from '../models/User.js';
 import Role from '../models/Role.js';
+import OTP from '../models/otp.js';
 import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
 import handleErrors from '../validation/handleErrors.js';
 import { registerValidation } from '../validation/userValidator.js';
 import dotenv from 'dotenv';
+//les utils
 import transporter from '../utils/transporter.js'; 
+import ErrorResponse from '../utils/errorResponse.js'
+import generateCode from '../utils/generateCode.js'
+import {otpMessage } from '../utils/emailUtils.js';
+
 
 dotenv.config();
 export const register = async(req,res)=>{
@@ -126,19 +132,68 @@ export const verifyEmail = async (req, res) => {
 };
 
 
-export const login = async(req,res)=>{
-  const { error } = registerValidation(req.body);
-  if (error) return res.status(400).json({ message: error.details[0].message });
+// export const login = async(req,res)=>{
+//   const { error } = registerValidation(req.body);
+//   if (error) return res.status(400).json({ message: error.details[0].message });
 
-  const { email, passwor } = req.body;
-  try{
-  const user = await User.findOne({email:req.body.email})
-  if(!user){
-    return res.status(400).json({message: 'email not found' });
+//   const { email, passwor } = req.body;
+//   try{
+//   const user = await User.findOne({email:req.body.email})
+//   if(!user){
+//     return res.status(400).json({message: 'email not found' });
+//   }
+
+//   }catch{
+
+//   }
+
+// }
+
+export const login = async (req, res, next) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+      return next(new ErrorResponse('Please provide an email and password', 400))
   }
-  
-  }catch{
 
+  try {
+      const user = await User.findOne({ email }).select("+password") //selectionner user meme si le chois select: false in the model user
+
+      if (!user) {
+          return next(new ErrorResponse('Invalid Credentials', 401))
+      }
+
+      const isMatch = await user.matchPasswords(password);
+
+      if (!isMatch) {
+          return next(new ErrorResponse('Invalid Credentials', 401))
+      }
+
+      if (user.two_fa_status) {
+        // await OTP.findOneAndDelete({ userId: user._id, otp: otp.otp }); 
+          const otp = await new OTP({
+              userId: user._id,
+              otp: generateCode()
+          }).save();
+
+          user.OTP_code = otp.otp
+          await user.save();
+
+          await transporter.sendMail({
+            from: process.env.EMAIL_USER, 
+              to: user.email,
+              subject: "One-Time Login Access",
+              text:otpMessage(otp, user)
+          });
+
+          await OTP.findOneAndDelete({ userId: user._id, otp: otp.otp }); 
+
+          return res.json({ otp: otp.otp, success: false, otpStatus: user.two_fa_status, id: user._id })
+      }
+
+      sendToken(user, 200, res);
+
+  } catch (error) {
+      next(error)
   }
-
-}
+};
