@@ -124,3 +124,21 @@ export const verifyEmail = async (req, res) => {
     return res.status(400).json({ message: 'Invalid or expired token' });
   }
 };
+
+
+export const login = async(req,res)=>{
+  const { error } = registerValidation(req.body);
+  if (error) return res.status(400).json({ message: error.details[0].message });
+
+  const { email, passwor } = req.body;
+  try{
+  const user = await User.findOne({email:req.body.email})
+  if(!user){
+    return res.status(400).json({message: 'email not found' });
+  }
+  
+  }catch{
+
+  }
+
+}
