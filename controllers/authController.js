@@ -12,7 +12,7 @@ import transporter from '../utils/transporter.js';
 import ErrorResponse from '../utils/errorResponse.js'
 import generateCode from '../utils/generateCode.js'
 import {otpMessage } from '../utils/emailUtils.js';
-
+import sendToken from '../utils/sendToken.js';
 
 dotenv.config();
 export const register = async(req,res)=>{
@@ -196,4 +196,80 @@ export const login = async (req, res, next) => {
   } catch (error) {
       next(error)
   }
+};
+
+//verifie the otp 
+export const verifyOTP = async (req, res, next) => {
+  const user = await User.findById(req.params.id);
+  const { otp } = req.body
+
+  try {
+      if (!user) return res.status(400).send({ message: "invalid user" });
+
+      const lastUpdatedTime = new Date(user.updatedAt);
+      lastUpdatedTime.setMinutes(lastUpdatedTime.getMinutes() + 5);
+      const currentTime = (new Date(Date.now()))
+
+      if (lastUpdatedTime <= currentTime) {
+          console.log('yes')
+          user.OTP_code = null
+          await user.save();
+          return next(new ErrorResponse('OTP expired, please request a new one', 400));
+      }
+
+      if (otp !== user.OTP_code) {
+          return next(new ErrorResponse('invalid token, please try again', 400))
+      }
+
+
+      user.OTP_code = null
+      await user.save();
+      return sendToken(user, 200, res);
+
+
+  } catch (error) {
+    console.error('Error during OTP verification:', error);
+      return next(new ErrorResponse('Internal Server', 500))
+
+  }
+};
+
+
+
+
+
+// Resending OTP 
+
+export const resendOTP = async (req, res, next) => {
+    const { id } = req.params
+    const user = await User.findById(`${id}`);
+
+    try {
+        if (user.two_fa_status === 'on') {
+
+
+            const otp = await new OTP({
+                userId: user,
+                otp: generateCode()
+            }).save();
+
+            user.OTP_code = otp.otp
+            await user.save();
+
+            await sendEmail({
+                to: user.email,
+                subject: "One-Time Login Access",
+                text:otpMessage(otp, user)
+            });
+
+            await otp.remove();
+
+            return res.json({ message: 'one-time login has been sent your email', otpStatus: user.two_fa_status, })
+        }
+        return res.json(user)
+
+
+    } catch (error) {
+        next(error)
+    }
 };
