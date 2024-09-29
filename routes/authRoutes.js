@@ -6,7 +6,7 @@ import * as authController from '../controllers/authController.js';
 //register
 router.post('/api/auth/register', authController.register);
 
-router.post('/api/auth/verify-user', authController.verifyEmail);
+router.post('/api/auth/verify-user/:token', authController.verifyEmail);
 
 //login
 router.post('/api/auth/login', authController.login);
@@ -19,5 +19,7 @@ router.post('/api/auth/resend-otp/:id', authController.resendOTP);
 
 //forget password
 router.post('/api/auth/forgetpassword', authController.forgetpasword);
+//resetpasword
+router.post('api/auth/resetpassword/:token', authController.forgetpasword);
 
 export default router; 

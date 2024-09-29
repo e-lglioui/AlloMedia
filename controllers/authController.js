@@ -99,7 +99,7 @@ export const register = async(req,res)=>{
 
 export const verifyEmail = async (req, res) => {
     
-  const { token } = req.query; // Récupère le token depuis la requête
+  const { token } = req.query; 
 
   if (!token) {
     return res.status(400).json({ message: 'No token provided' });
@@ -304,3 +304,38 @@ export const forgetpasword = async (req,res,next)=>{
 next(error);
 }
 }
+
+
+// Reset Password
+export const resetPassword = async (req, res, next) => {
+  const { token } = req.params; 
+  const { newPassword } = req.body; 
+
+  if (!token) {
+    return res.status(400).json({ message: 'No token provided' });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.userId;
+
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return next(new ErrorResponse('Invalid token or user does not exist', 400));
+    }
+
+
+    await user.save();
+
+    // Success response
+    res.status(200).json({ message: 'Password reset successfully!' });
+
+  } catch (error) {
+    
+    if (error.name === 'TokenExpiredError') {
+      return next(new ErrorResponse('Token has expired', 400));
+    }
+    next(new ErrorResponse('Error resetting password', 500));
+  }
+};
