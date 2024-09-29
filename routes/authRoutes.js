@@ -17,4 +17,7 @@ router.post('/api/auth/verify2FA/:id', authController.verifyOTP);
 
 router.post('/api/auth/resend-otp/:id', authController.resendOTP);
 
+//forget password
+router.post('/api/auth/forgetpassword', authController.forgetpasword);
+
 export default router; 

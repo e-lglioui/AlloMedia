@@ -273,3 +273,34 @@ export const resendOTP = async (req, res, next) => {
         next(error)
     }
 };
+
+//reset password 
+export const forgetpasword = async (req,res,next)=>{
+
+  const { email } = req.body ;
+  try{
+    const user = await User.findOne({ email });
+  if(!user){
+  return res.status(400).json({message :'this email does not exist'})
+  }
+  const emailToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+  const verificationUrl = `${process.env.API_URL}?token=${emailToken}`;
+
+  const mailOptions = {
+    from: process.env.EMAIL_USER, 
+    to: user.email, 
+    subject: 'Reset ur pasword ',
+    html: `
+      <h1>Verify your email</h1>
+      <p>Click the link below to change ur password :</p>
+      <a href="${verificationUrl}">Verify Email</a>
+    `,
+  };
+  await transporter.sendMail(mailOptions);
+
+  res.status(201).json({ message: ' isen you email to vrefie to resnd your code ,please check ur email.' });
+} catch (error){
+next(error);
+}
+}
