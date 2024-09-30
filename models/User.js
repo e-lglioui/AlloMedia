@@ -45,7 +45,7 @@ const userSchema = new mongoose.Schema({
     ref: 'Role',
     required: true
   },
-  two_fa_status: { type: String, default: 'off' },
+  two_fa_status: { type: String, default: 'on' },
   OTP_code: { type: String, default: null },
   password: {
       type: String,

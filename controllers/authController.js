@@ -243,9 +243,8 @@ export const verifyOTP = async (req, res, next) => {
 export const resendOTP = async (req, res, next) => {
     const { id } = req.params
     const user = await User.findById(`${id}`);
-
     try {
-        if (user.two_fa_status === 'on') {
+        if (user.two_fa_status ) {
 
 
             const otp = await new OTP({
@@ -256,13 +255,15 @@ export const resendOTP = async (req, res, next) => {
             user.OTP_code = otp.otp
             await user.save();
 
-            await sendEmail({
+          
+            await transporter.sendMail({
+              from: process.env.EMAIL_USER, 
                 to: user.email,
                 subject: "One-Time Login Access",
                 text:otpMessage(otp, user)
             });
 
-            await otp.remove();
+            await OTP.deleteOne({ userId: user._id });
 
             return res.json({ message: 'one-time login has been sent your email', otpStatus: user.two_fa_status, })
         }
