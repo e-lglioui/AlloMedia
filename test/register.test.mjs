@@ -8,7 +8,7 @@ import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
 import transporter from '../utils/transporter.js';
 import sinon from 'sinon';  
-import mongoose from 'mongoose';
+// import mongoose from 'mongoose';
 describe('Register fuction user to do the singup the users', () => {
 
     let req, res;
