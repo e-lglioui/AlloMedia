@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-import transporter from '../utils/transporter.js'; // Adjust the path if needed
+import transporter from '../utils/transporter.js'; 
 import { resendOTP } from '../controllers/authController.js';
 import User from '../models/User.js';
 import OTP from '../models/otp.js';

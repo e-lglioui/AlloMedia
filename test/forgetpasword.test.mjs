@@ -3,7 +3,7 @@ import sinon from 'sinon';
 import jwt from 'jsonwebtoken'; 
 import { forgetpasword } from '../controllers/authController.js'; 
 import User from '../models/User.js';
-import transporter from '../utils/transporter.js'; 
+import transporter from '../utils/transporter.js'; // Ensure this path is correct
 
 describe('forgetPassword Function', () => {
     let req, res, next;
@@ -11,7 +11,7 @@ describe('forgetPassword Function', () => {
 
     beforeEach(() => {
         req = {
-            body: { email: 'john@example.com' } 
+            body: { email: 'john@example.com' } // Simulated request body
         };
         res = {
             status: sinon.stub().returnsThis(), // Mocking the status method to return res for chaining

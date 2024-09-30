@@ -1,6 +1,6 @@
 import express from 'express';
-import * as chai from 'chai'; // Importer tous les exports
-const { expect } = chai;      // Extraire `expect` de l'objet
+import * as chai from 'chai'; 
+const { expect } = chai;      
 import { register } from '../controllers/authController.js';
 import User from '../models/User.js';
 import Role from '../models/Role.js';
