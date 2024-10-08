@@ -5,7 +5,7 @@ import validator from 'validator';
 const { isEmail } = validator;
 
 import bcryptjs from 'bcryptjs';
-import Role from './Role.js'; 
+
 // import { boolean } from "joi"; 
 import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
@@ -41,9 +41,10 @@ const userSchema = new mongoose.Schema({
     required: false
   },
   role: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Role',
-    required: true
+    type: String, 
+    enum: ['client', 'livreur'], 
+    required: true,
+    default: 'client' 
   },
   two_fa_status: { type: String, default: 'on' },
   OTP_code: { type: String, default: null },

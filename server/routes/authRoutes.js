@@ -104,8 +104,8 @@ router.post('/api/auth/verify2FA/:id', authController.verifyOTP);
 router.post('/api/auth/resend-otp/:id', authController.resendOTP);
 
 //forget password
-router.post('/api/auth/forgetpassword', authController.forgetpasword);
+router.post('/api/auth/forgetpassword', authController.forgetPassword);
 //resetpasword
-router.post('api/auth/resetpassword/:token', authController.forgetpasword);
+router.post('/api/auth/reset-password/:token', authController.resetPassword);
 
 export default router; 

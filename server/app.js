@@ -4,10 +4,12 @@ import db from './config/db.js'; // Assurez-vous que le chemin est correct
 import authRouter from './routes/authRoutes.js'; 
 import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
+import cors from 'cors';
 dotenv.config();
 const app = express();
 const port = 3000;
 db();
+
 
 
 // Middleware pour parser le JSON
@@ -22,19 +24,20 @@ const swaggerOptions = {
     },
     servers: [
       {
-        url: 'http://localhost:3000', // Replace with your server URL
+        url: 'http://localhost:3000',
       },
     ],
   },
-  apis: ['./routes/*.js'], // Path to your API docs
+  apis: ['./routes/*.js'], 
 };
+app.use(cors({ origin: 'http://localhost:5173' }));
 
 const swaggerDocs = swaggerJsdoc(swaggerOptions);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
-// Ajoutez un middleware pour loguer les requêtes
+
 app.use((req, res, next) => {
   console.log(`${req.method} ${req.url}`);
-  next(); // Passe à la prochaine middleware ou route
+  next(); // 
 });
 
 // Utiliser le routeur d'authentification

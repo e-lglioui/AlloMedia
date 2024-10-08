@@ -1,5 +1,5 @@
 import Joi from 'joi'; 
-import Role from '../models/Role.js';
+
 
 export const registerValidation = (data) => { 
   const schema = Joi.object({
