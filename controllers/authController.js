@@ -63,21 +63,9 @@ export const register = async(req,res)=>{
 
    
     await transporter.sendMail(mailOptions);
-       
-        const accessToken = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, { expiresIn: '15m' });
-        const refreshToken = jwt.sign({ id: newUser._id }, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d' });
-    
-        res.cookie('refreshToken', refreshToken, {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === 'production', 
-          sameSite: 'Strict',
-          maxAge: 7 * 24 * 60 * 60 * 1000, 
-        });
-    
-  
+      
         res.status(201).json({
           message: 'User registered. Please check your email for verification.',
-          accessToken, 
         });
     }catch(err){
       const errors = handleErrors(err);
@@ -157,8 +145,7 @@ export const login = async (req, res, next) => {
           return next(new ErrorResponse('Invalid Credentials', 401))
       }
 
-      if (user.two_fa_status) {
-        // await OTP.findOneAndDelete({ userId: user._id, otp: otp.otp }); 
+   
           const otp = await new OTP({
               userId: user._id,
               otp: generateCode()
@@ -175,11 +162,10 @@ export const login = async (req, res, next) => {
           });
 
           await OTP.findOneAndDelete({ userId: user._id, otp: otp.otp }); 
+     
 
           return res.json({ otp: otp.otp, success: false, otpStatus: user.two_fa_status, id: user._id })
-      }
-
-      sendToken(user, 200, res);
+    
 
   } catch (error) {
       next(error)
@@ -210,20 +196,19 @@ export const verifyOTP = async (req, res, next) => {
 
         // Si l'OTP est valide, générer les tokens
         const accessToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '15m' });
-        const refreshToken = jwt.sign({ id: user._id }, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d' });// Utilise une méthode différente pour le refresh token si nécessaire
-
+        const refreshToken = jwt.sign({ id: user._id }, process.env.JWT_REFRESH_SECRET, { expiresIn: '30d' });
         // Stocker le refresh token dans un cookie
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production', // Utiliser HTTPS en production
-            expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 jours
+            secure: process.env.NODE_ENV === 'production', 
+            expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), 
         });
 
         // Réinitialiser l'OTP
         user.OTP_code = null;
         await user.save();
 
-        // Envoyer le access token dans la réponse
+    
         return res.json({ success: true, accessToken });
     } catch (error) {
         console.error('Error during OTP verification:', error);

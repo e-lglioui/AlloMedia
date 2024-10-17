@@ -107,4 +107,38 @@ router.post('/api/auth/forgetpassword', authController.forgetPassword);
 //resetpasword
 router.post('/api/auth/reset-password/:token', authController.resetPassword);
 
+router.post('/logout', (req, res) => {
+   
+    res.clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production', 
+      path: '/',
+    });
+  
+  
+    return res.status(200).json({ message: 'Logout successful' });
+  });
+
+// Erenouvellement du token
+
+export const refreshAccessToken = async (req, res, next) => {
+    const refreshToken = req.cookies.refreshToken; 
+    if (!refreshToken) {
+        return next(new ErrorResponse('Refresh Token is missing', 401));
+    }
+
+    try {
+        
+        const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+
+        const newAccessToken = jwt.sign({ id: decoded.id }, process.env.JWT_SECRET, { expiresIn: '15m' });
+
+        return res.json({ success: true, accessToken: newAccessToken });
+    } catch (error) {
+        return next(new ErrorResponse('Invalid or expired refresh token', 403));
+    }
+};
+
+  
+
 export default router; 
